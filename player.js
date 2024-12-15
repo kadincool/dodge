@@ -16,7 +16,7 @@ let player = {
   hp: 3,
   score: 0,
 
-  speed: 50,
+  speed: 3000,
   bounceStrength: 500,
   iTime: 1,
 };
@@ -67,16 +67,16 @@ function playerTakeDamage() {
 
 function playerMoveAndCollide(player, delta) {
   if (inputs.left) {
-    player.xMom += player.speed;
+    player.xMom += player.speed * delta;
   }
   if (inputs.right) {
-    player.xMom -= player.speed;
+    player.xMom -= player.speed * delta;
   }
   if (inputs.down) {
-    player.yMom += player.speed;
+    player.yMom += player.speed * delta;
   }
   if (inputs.up) {
-    player.yMom -= player.speed;
+    player.yMom -= player.speed * delta;
   }
 
   let smearPlayer = {x: player.x + Math.min(player.xMom * delta, 0), y: player.y, wid: player.wid + Math.abs(player.xMom * delta), hei: player.hei}
