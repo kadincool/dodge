@@ -31,10 +31,6 @@ function inputFrame() {
     pause: false,
     action: false,
   }; // make new one because of pass by reference later
-  // inputs.up = false;
-  // inputs.down = false;
-  // inputs.left = false;
-  // inputs.right = false;
   if (keys.KeyW) inputs.up = true;
   if (keys.KeyS) inputs.down = true;
   if (keys.KeyD) inputs.left = true;
@@ -79,16 +75,18 @@ function playerMoveAndCollide(player, delta) {
     player.yMom -= player.speed * delta;
   }
 
-  let smearPlayer = {x: player.x + Math.min(player.xMom * delta, 0), y: player.y, wid: player.wid + Math.abs(player.xMom * delta), hei: player.hei}
+  player.xMom *= 0.001 ** delta;
+  player.yMom *= 0.001 ** delta;
+
+  // sees if a smear between the new position and the old position hits anything
+  let smearPlayer = {x: player.x + Math.min(player.xMom * delta, 0), y: player.y, wid: player.wid + Math.abs(player.xMom * delta), hei: player.hei};
   if (player.iRemain <= 0) // only check hazards if no invincibility
   for (let hazard of level.hazards) {
     let smearHazard = {x: hazard.x + Math.min(hazard.xMom * delta, 0), y: hazard.y, wid: hazard.wid + Math.abs(hazard.xMom * delta), hei: hazard.hei};
     if (checkOverlap(smearPlayer, smearHazard)) {
       if (player.xMom - hazard.xMom > 0) {
-        // player.x = hazard.x - player.wid;
         player.xMom = -player.bounceStrength;
       } else {
-        // player.x = hazard.x + hazard.wid;
         player.xMom = player.bounceStrength;
       }
       player.iRemain = player.iTime;
@@ -96,7 +94,7 @@ function playerMoveAndCollide(player, delta) {
       break;
     }
   }
-  smearPlayer = {x: player.x + Math.min(player.xMom * delta, 0), y: player.y, wid: player.wid + Math.abs(player.xMom * delta), hei: player.hei}
+  smearPlayer = {x: player.x + Math.min(player.xMom * delta, 0), y: player.y, wid: player.wid + Math.abs(player.xMom * delta), hei: player.hei}; // remake smear to accomidate change in momentum
   for (let wall of level.walls) {
     if (checkOverlap(smearPlayer, wall)) {
       if (player.xMom > 0) {
@@ -110,16 +108,14 @@ function playerMoveAndCollide(player, delta) {
   }
   player.x += player.xMom * delta;
   // Y direction
-  smearPlayer = {x: player.x, y: player.y + Math.min(player.yMom * delta, 0), wid: player.wid, hei: player.hei + Math.abs(player.yMom * delta)}
+  smearPlayer = {x: player.x, y: player.y + Math.min(player.yMom * delta, 0), wid: player.wid, hei: player.hei + Math.abs(player.yMom * delta)};
   if (player.iRemain <= 0) // only check hazards if no invincibility
   for (let hazard of level.hazards) {
     let smearHazard = {x: hazard.x, y: hazard.y + Math.min(hazard.yMom * delta, 0), wid: hazard.wid, hei: hazard.hei + Math.abs(hazard.yMom * delta)};
     if (checkOverlap(smearPlayer, smearHazard)) {
       if (player.yMom - hazard.yMom > 0) {
-        // player.y = smearHazard.y - player.hei;
         player.yMom = -player.bounceStrength;
       } else {
-        // player.y = smearHazard.y + smearHazard.hei;
         player.yMom = player.bounceStrength;
       }
       player.iRemain = player.iTime;
@@ -127,7 +123,7 @@ function playerMoveAndCollide(player, delta) {
       break;
     }
   }
-  smearPlayer = {x: player.x, y: player.y + Math.min(player.yMom * delta, 0), wid: player.wid, hei: player.hei + Math.abs(player.yMom * delta)}
+  smearPlayer = {x: player.x, y: player.y + Math.min(player.yMom * delta, 0), wid: player.wid, hei: player.hei + Math.abs(player.yMom * delta)};
   for (let wall of level.walls) {
     if (checkOverlap(smearPlayer, wall)) {
       if (player.yMom > 0) {
@@ -141,8 +137,6 @@ function playerMoveAndCollide(player, delta) {
   }
   player.y += player.yMom * delta;
 
-  player.xMom *= 0.001 ** delta;
-  player.yMom *= 0.001 ** delta;
   player.iRemain = Math.max(player.iRemain - delta, 0);
 }
 
